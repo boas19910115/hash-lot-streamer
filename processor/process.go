@@ -46,7 +46,6 @@ var (
 		"-c:v", "libx264",
 		"-c:a", "aac",
 		"-f", "flv",
-		"-vf", "scale=150:-1",
 	}
 	inputIndex = 6
 )
