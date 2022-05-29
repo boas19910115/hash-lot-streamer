@@ -50,9 +50,15 @@ var (
 	inputIndex = 6
 )
 
-func getArgs(input string) ([]string, error) {
+func getArgs(input []string) ([]string, error) {
 	toReturn := args
-	toReturn[inputIndex] = input
+	var inputList []string
+	for _, inputString := range input {
+		inputList = append(inputList, "-i "+inputString)
+	}
+	for _, inputArg := range inputList {
+		toReturn = append(toReturn, inputArg)
+	}
 	output, err := getOutput()
 	if err != nil {
 		return toReturn, err
@@ -72,7 +78,7 @@ func Stop() (bool, error) {
 	return false, nil
 }
 
-func Process(input string, errc chan error) error {
+func Process(input []string, errc chan error) error {
 	if Processing() {
 		if _, err := Stop(); err != nil {
 			return err

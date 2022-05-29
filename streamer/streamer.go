@@ -1,6 +1,7 @@
 package streamer
 
 import (
+	"bot/helpers"
 	"bot/processor"
 	"bot/ytdl"
 	"errors"
@@ -24,11 +25,16 @@ var (
 func Stream(b *gotgbot.Bot, input string, user *gotgbot.User) error {
 	var video *ytdl.Video
 	origInput := input
-	_, err := url.ParseRequestURI(input)
-	if err == nil {
-		video, err = ytdl.Download(input)
+	UrlList := helpers.GetVideos()
+	var VideoPathList []string
+	var err error
+	for _, URL := range UrlList {
+		_, err := url.ParseRequestURI(URL)
 		if err == nil {
-			input = video.Url
+			video, err = ytdl.Download(URL)
+			if err == nil {
+				VideoPathList = append(VideoPathList, video.Url)
+			}
 		}
 	}
 	errc := make(chan error)
@@ -44,7 +50,7 @@ func Stream(b *gotgbot.Bot, input string, user *gotgbot.User) error {
 			b.SendMessage(user.Id, fmt.Sprintf("Failed to process: %s", err.Error()), nil)
 		}
 	}()
-	err = processor.Process(input, errc)
+	err = processor.Process(VideoPathList, errc)
 	if err == nil {
 		now.Input = origInput
 		now.User = user
